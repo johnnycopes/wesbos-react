@@ -1,3 +1,5 @@
+// handy functions to be used throughout app that don't particularly fit in any specific module
+
 export function formatPrice(cents) {
   return `$${(cents / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
 }
