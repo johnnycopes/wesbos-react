@@ -2,7 +2,7 @@ import React from 'react';
 import Header from './Header';
 import Order from './Order';
 import Inventory from './Inventory';
-import NotFound from './NotFound';
+import Fish from './Fish';
 import sampleFishes from '../sample-fishes';
 
 class App extends React.Component {
@@ -11,6 +11,7 @@ class App extends React.Component {
 
     this.addFish = this.addFish.bind(this);
     this.loadSamples = this.loadSamples.bind(this);
+    this.addToOrder = this.addToOrder.bind(this);
 
     // initial state
     this.state = {
@@ -36,13 +37,29 @@ class App extends React.Component {
     });
   }
 
+  addToOrder(key) {
+    // make a copy of state
+    const order = {...this.state.order};
+    // update or add the new number of fish ordered
+    order[key] = order[key] + 1 || 1;
+    // update our state (order: order)
+    this.setState({ order });
+  }
+
   render() {
     return (
       <div className="catch-of-the-day">
         <div className="menu">
-          <Header tagline="Fresh Fish Market"/>
+          <Header tagline="Fresh Fish Market" />
+          <ul className="list-of-fishes">
+            {Object
+              .keys(this.state.fishes)
+              // the prop key can't be passed down, so we make one called index to be used in the 'add to order' callback function
+              .map(key => <Fish key={key} index={key} details={this.state.fishes[key]} addToOrder={this.addToOrder} />)
+            }
+          </ul>
         </div>
-        <Order/>
+        <Order fishes={this.state.fishes} order={this.state.order} />
         <Inventory loadSamples={this.loadSamples} addFish={this.addFish} />
       </div>
     )
