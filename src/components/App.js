@@ -4,6 +4,7 @@ import Order from './Order';
 import Inventory from './Inventory';
 import Fish from './Fish';
 import sampleFishes from '../sample-fishes';
+import base from '../base';
 
 class App extends React.Component {
   constructor(props) {
@@ -19,6 +20,40 @@ class App extends React.Component {
       order: {}
     }
   }
+
+  componentWillMount() {
+    // this runs right before the app is rendered
+    this.ref = base.syncState(`${this.props.params.storeId}/fishes`
+      , {
+      context: this,
+      state: 'fishes'
+    });
+
+    // check if there is any order in localStorage
+    const localStorageRef = localStorage.getItem(`order-${this.props.params.storeId}`);
+    if (localStorageRef) {
+      // update our app component's order state
+      this.setState({
+        order: JSON.parse(localStorageRef)
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    base.removeBinding(this.ref);
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    // this runs anytime anything changes
+    console.log('Something changed');
+    console.log({nextProps, nextState});
+
+    localStorage.setItem(`order-${this.props.params.storeId}`, JSON.stringify(nextState.order));
+  }
+
+  // the hook shouldComponentUpdate allows more precise control over when a component rerenders
+
+
 
   addFish(fish) {
     // update state
@@ -59,8 +94,15 @@ class App extends React.Component {
             }
           </ul>
         </div>
-        <Order fishes={this.state.fishes} order={this.state.order} />
-        <Inventory loadSamples={this.loadSamples} addFish={this.addFish} />
+        <Order
+          fishes={this.state.fishes}
+          order={this.state.order}
+          params={this.props.params}
+        />
+        <Inventory
+          loadSamples={this.loadSamples}
+          addFish={this.addFish}
+        />
       </div>
     )
   }
